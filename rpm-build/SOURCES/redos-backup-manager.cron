@@ -1,0 +1,9 @@
+# РЕД ОС - Резервное копирование
+# Cron задание для автоматического резервного копирования
+# Выполняется ежедневно в 03:00
+
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+# Ежедневное резервное копирование в 03:00
+0 3 * * * root /usr/share/redos-backup-manager/scripts/backup-all.sh >> /var/log/redos-backup/cron.log 2>&1

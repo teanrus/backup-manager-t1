@@ -35,4 +35,4 @@ export interface LogEntry {
   jobName?: string;
 }
 
-export type Page = 'dashboard' | 'jobs' | 'smb' | 'schedule' | 'logs' | 'settings';
+export type Page = 'dashboard' | 'jobs' | 'smb' | 'schedule' | 'logs' | 'settings' | 'about';

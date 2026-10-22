@@ -1,0 +1,25 @@
+[Unit]
+Description=РЕД ОС - Резервное копирование каталогов пользователя
+Documentation=https://redos.local
+After=network-online.target remote-fs.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/share/redos-backup-manager/scripts/backup-all.sh
+User=root
+Nice=10
+IOSchedulingClass=idle
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=redos-backup
+
+# Таймаут выполнения (4 часа)
+TimeoutStartSec=14400
+
+# Ограничения ресурсов
+MemoryMax=1G
+CPUQuota=50%
+
+[Install]
+WantedBy=multi-user.target

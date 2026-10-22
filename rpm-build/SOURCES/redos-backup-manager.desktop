@@ -1,0 +1,15 @@
+[Desktop Entry]
+Type=Application
+Name=Резервное копирование
+Name[ru]=Резервное копирование
+Comment=Управление резервным копированием на SMB сервер
+Comment[ru]=Управление резервным копированием каталогов пользователя на удалённый SMB сервер
+GenericName=Менеджер резервного копирования
+GenericName[ru]=Менеджер резервного копирования
+Exec=xdg-open http://localhost:8080
+Icon=/usr/share/redos-backup-manager/icons/redos-backup-manager.png
+Terminal=false
+Categories=System;FileTools;Utility;
+Keywords=backup;rsync;smb;copy;redos;
+Keywords[ru]=резервное;копирование;rsync;smb;бэкап;
+StartupNotify=true

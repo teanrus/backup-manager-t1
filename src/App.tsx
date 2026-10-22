@@ -8,6 +8,7 @@ import { SMBPage } from './SMBPage';
 import { SchedulePage } from './SchedulePage';
 import { LogsPage } from './LogsPage';
 import { SettingsPage } from './SettingsPage';
+import { AboutPage } from './AboutPage';
 
 function App() {
   const [currentPage, setCurrentPage] = useState<Page>('dashboard');
@@ -130,6 +131,8 @@ function App() {
         return <LogsPage logs={logs} />;
       case 'settings':
         return <SettingsPage />;
+      case 'about':
+        return <AboutPage />;
       default:
         return <Dashboard jobs={jobs} logs={logs} smbConfig={smbConfig} onRunJob={handleRunJob} />;
     }

@@ -1,0 +1,14 @@
+[Unit]
+Description=РЕД ОС - Таймер резервного копирования
+Documentation=https://redos.local
+
+[Timer]
+# Запуск ежедневно в 03:00
+OnCalendar=*-*-* 03:00:00
+# Запуск при загрузке системы (если пропустили время)
+Persistent=true
+# Случайная задержка до 30 минут для распределения нагрузки
+RandomizedDelaySec=1800
+
+[Install]
+WantedBy=timers.target

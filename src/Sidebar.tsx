@@ -13,6 +13,7 @@ const menuItems: { page: Page; icon: string; label: string }[] = [
   { page: 'smb', icon: 'fa-server', label: 'SMB сервер' },
   { page: 'logs', icon: 'fa-file-lines', label: 'Журнал' },
   { page: 'settings', icon: 'fa-gear', label: 'Настройки' },
+  { page: 'about', icon: 'fa-circle-info', label: 'О программе' },
 ];
 
 export const Sidebar: React.FC<SidebarProps> = ({ currentPage, onPageChange }) => {
