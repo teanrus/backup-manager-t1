@@ -1,15 +1,11 @@
-<div align="center">
-
-# 🛡️ Система резервного копирования каталогов пользователя на удалённый SMB сервер
-
-**rsync • SMB/CIFS • systemd • cron • веб-интерфейс**
-
 [![Версия](https://img.shields.io/badge/версия-1.0.0-blue.svg)](https://redos.local)
 [![Платформа](https://img.shields.io/badge/РЕД_ОС-7.3+-green.svg)](https://redos.red-soft.ru)
 [![Лицензия](https://img.shields.io/badge/лицензия-MIT-orange.svg)](LICENSE)
 [![RPM](https://img.shields.io/badge/пакет-RPM-red.svg)](rpm-build/)
 
-</div>
+# Система резервного копирования каталогов пользователя на удалённый SMB сервер (предварительная версия)
+
+**rsync • SMB/CIFS • systemd • cron • веб-интерфейс**
 
 ---
 
