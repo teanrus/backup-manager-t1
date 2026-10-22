@@ -4,23 +4,11 @@ import { SMBConfig } from './types';
 interface SMBPageProps {
   config: SMBConfig;
   onSave: (config: SMBConfig) => void;
-  onTestConnection: () => void;
 }
 
-export const SMBPage: React.FC<SMBPageProps> = ({ config, onSave, onTestConnection }) => {
+export const SMBPage: React.FC<SMBPageProps> = ({ config, onSave }) => {
   const [localConfig, setLocalConfig] = useState<SMBConfig>({ ...config });
-  const [testing, setTesting] = useState(false);
-  const [testResult, setTestResult] = useState<'success' | 'error' | null>(null);
-
-  const handleTest = () => {
-    setTesting(true);
-    setTestResult(null);
-    setTimeout(() => {
-      setTesting(false);
-      setTestResult('success');
-      onTestConnection();
-    }, 1500);
-  };
+  const [testAttempted, setTestAttempted] = useState(false);
 
   const handleSave = () => {
     onSave(localConfig);
@@ -34,20 +22,14 @@ export const SMBPage: React.FC<SMBPageProps> = ({ config, onSave, onTestConnecti
       </div>
 
       {/* Connection Status */}
-      <div className={`rounded-xl p-5 border ${config.connected ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
+      <div className="rounded-xl p-5 border bg-amber-50 border-amber-200">
         <div className="flex items-center gap-3">
-          <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${config.connected ? 'bg-green-100' : 'bg-red-100'}`}>
-            <i className={`fa-solid ${config.connected ? 'fa-plug-circle-check text-green-600' : 'fa-plug-circle-xmark text-red-600'} text-xl`}></i>
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-amber-100">
+            <i className="fa-solid fa-circle-question text-amber-700 text-xl"></i>
           </div>
           <div>
-            <p className={`font-semibold ${config.connected ? 'text-green-800' : 'text-red-800'}`}>
-              {config.connected ? 'Подключение активно' : 'Нет подключения'}
-            </p>
-            <p className={`text-sm ${config.connected ? 'text-green-600' : 'text-red-600'}`}>
-              {config.connected
-                ? `//${config.server}/${config.share} → ${config.mountPoint}`
-                : 'SMB ресурс недоступен'}
-            </p>
+            <p className="font-semibold text-amber-900">Состояние SMB не проверяется</p>
+            <p className="text-sm text-amber-800">Веб-интерфейс не подключён к системному сервису.</p>
           </div>
         </div>
       </div>
@@ -130,24 +112,14 @@ export const SMBPage: React.FC<SMBPageProps> = ({ config, onSave, onTestConnecti
             Сохранить
           </button>
           <button
-            onClick={handleTest}
-            disabled={testing}
+            onClick={() => setTestAttempted(true)}
             className="px-5 py-2.5 bg-slate-100 text-slate-700 text-sm rounded-lg hover:bg-slate-200 transition-colors flex items-center gap-2 disabled:opacity-50"
           >
-            {testing ? (
-              <><i className="fa-solid fa-spinner fa-spin"></i> Проверка...</>
-            ) : (
-              <><i className="fa-solid fa-plug"></i> Проверить подключение</>
-            )}
+            <i className="fa-solid fa-plug"></i> Проверить подключение
           </button>
-          {testResult === 'success' && (
-            <span className="text-sm text-green-600 flex items-center gap-1">
-              <i className="fa-solid fa-circle-check"></i> Подключение успешно
-            </span>
-          )}
-          {testResult === 'error' && (
-            <span className="text-sm text-red-600 flex items-center gap-1">
-              <i className="fa-solid fa-circle-xmark"></i> Ошибка подключения
+          {testAttempted && (
+            <span className="text-sm text-amber-700 flex items-center gap-1">
+              <i className="fa-solid fa-circle-info"></i> Проверка недоступна: нужен системный backend.
             </span>
           )}
         </div>

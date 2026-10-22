@@ -1,84 +1,15 @@
 import { SMBConfig, BackupJob, LogEntry } from './types';
 
 export const initialSMBConfig: SMBConfig = {
-  server: '192.168.1.100',
-  share: 'backups',
-  username: 'backup_user',
-  password: '••••••••',
+  server: '',
+  share: '',
+  username: '',
+  password: '',
   domain: 'WORKGROUP',
   mountPoint: '/mnt/backup',
-  connected: true,
+  connected: false,
 };
 
-export const initialJobs: BackupJob[] = [
-  {
-    id: '1',
-    name: 'Документы',
-    sourcePath: '/home/user/Документы',
-    enabled: true,
-    lastRun: '2026-01-15 08:00:00',
-    lastStatus: 'success',
-    schedule: { type: 'daily', time: '08:00' },
-    size: '2.4 ГБ',
-    filesCount: 1547,
-  },
-  {
-    id: '2',
-    name: 'Изображения',
-    sourcePath: '/home/user/Изображения',
-    enabled: true,
-    lastRun: '2026-01-15 08:05:00',
-    lastStatus: 'success',
-    schedule: { type: 'weekly', time: '03:00', dayOfWeek: 0 },
-    size: '8.7 ГБ',
-    filesCount: 3201,
-  },
-  {
-    id: '3',
-    name: 'Рабочий стол',
-    sourcePath: '/home/user/Рабочий стол',
-    enabled: true,
-    lastRun: '2026-01-14 22:00:00',
-    lastStatus: 'error',
-    schedule: { type: 'daily', time: '22:00' },
-    size: '512 МБ',
-    filesCount: 89,
-  },
-  {
-    id: '4',
-    name: 'Загрузки',
-    sourcePath: '/home/user/Загрузки',
-    enabled: false,
-    lastRun: '2026-01-10 12:00:00',
-    lastStatus: 'success',
-    schedule: { type: 'manual' },
-    size: '4.1 ГБ',
-    filesCount: 234,
-  },
-  {
-    id: '5',
-    name: 'Конфигурация',
-    sourcePath: '/home/user/.config',
-    enabled: true,
-    lastRun: '2026-01-15 06:00:00',
-    lastStatus: 'success',
-    schedule: { type: 'daily', time: '06:00' },
-    size: '156 МБ',
-    filesCount: 2890,
-  },
-];
+export const initialJobs: BackupJob[] = [];
 
-export const initialLogs: LogEntry[] = [
-  { id: '1', timestamp: '2026-01-15 08:05:32', level: 'success', message: 'Резервное копирование завершено успешно. Скопировано 3201 файл (8.7 ГБ)', jobName: 'Изображения' },
-  { id: '2', timestamp: '2026-01-15 08:00:15', level: 'success', message: 'Резервное копирование завершено успешно. Скопировано 1547 файлов (2.4 ГБ)', jobName: 'Документы' },
-  { id: '3', timestamp: '2026-01-15 06:00:08', level: 'success', message: 'Резервное копирование завершено успешно. Скопировано 2890 файлов (156 МБ)', jobName: 'Конфигурация' },
-  { id: '4', timestamp: '2026-01-14 22:00:45', level: 'error', message: 'Ошибка: SMB подключение недоступно. Сервер 192.168.1.100 не отвечает', jobName: 'Рабочий стол' },
-  { id: '5', timestamp: '2026-01-14 22:00:01', level: 'info', message: 'Начало резервного копирования по расписанию', jobName: 'Рабочий стол' },
-  { id: '6', timestamp: '2026-01-14 08:00:12', level: 'success', message: 'Резервное копирование завершено успешно. Скопировано 1543 файла (2.4 ГБ)', jobName: 'Документы' },
-  { id: '7', timestamp: '2026-01-14 06:00:05', level: 'success', message: 'Резервное копирование завершено успешно. Скопировано 2885 файлов (155 МБ)', jobName: 'Конфигурация' },
-  { id: '8', timestamp: '2026-01-13 22:00:30', level: 'success', message: 'Резервное копирование завершено успешно. Скопировано 87 файлов (510 МБ)', jobName: 'Рабочий стол' },
-  { id: '9', timestamp: '2026-01-13 15:30:00', level: 'info', message: 'SMB подключение восстановлено: //192.168.1.100/backups → /mnt/backup' },
-  { id: '10', timestamp: '2026-01-13 15:25:00', level: 'warning', message: 'Потеряно SMB подключение к серверу 192.168.1.100' },
-  { id: '11', timestamp: '2026-01-13 08:00:10', level: 'success', message: 'Резервное копирование завершено успешно. Скопировано 1540 файлов (2.3 ГБ)', jobName: 'Документы' },
-  { id: '12', timestamp: '2026-01-12 08:00:08', level: 'success', message: 'Резервное копирование завершено успешно. Скопировано 1538 файлов (2.3 ГБ)', jobName: 'Документы' },
-];
+export const initialLogs: LogEntry[] = [];

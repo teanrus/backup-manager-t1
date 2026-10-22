@@ -15,7 +15,6 @@ function App() {
   const [smbConfig, setSmbConfig] = useState<SMBConfig>(initialSMBConfig);
   const [jobs, setJobs] = useState<BackupJob[]>(initialJobs);
   const [logs, setLogs] = useState<LogEntry[]>(initialLogs);
-  const [runningJobs, setRunningJobs] = useState<Set<string>>(new Set());
 
   const addLog = useCallback((level: LogEntry['level'], message: string, jobName?: string) => {
     const newLog: LogEntry = {
@@ -35,38 +34,7 @@ function App() {
     const job = jobs.find(j => j.id === id);
     if (!job) return;
 
-    setRunningJobs(prev => new Set(prev).add(id));
-    addLog('info', `Начало резервного копирования (запущено вручную)`, job.name);
-
-    // Simulate backup process
-    setTimeout(() => {
-      const success = Math.random() > 0.15;
-      setRunningJobs(prev => {
-        const next = new Set(prev);
-        next.delete(id);
-        return next;
-      });
-
-      setJobs(prev => prev.map(j => {
-        if (j.id === id) {
-          return {
-            ...j,
-            lastRun: new Date().toLocaleString('ru-RU', {
-              year: 'numeric', month: '2-digit', day: '2-digit',
-              hour: '2-digit', minute: '2-digit', second: '2-digit'
-            }).replace(',', ''),
-            lastStatus: success ? 'success' : 'error',
-          };
-        }
-        return j;
-      }));
-
-      if (success) {
-        addLog('success', `Резервное копирование завершено успешно. Синхронизировано файлов: ${job.filesCount}`, job.name);
-      } else {
-        addLog('error', `Ошибка: SMB подключение потеряно во время выполнения`, job.name);
-      }
-    }, 2000 + Math.random() * 2000);
+    addLog('error', 'Веб-интерфейс не подключён к системному сервису и не может запускать резервное копирование. Используйте backup-all.sh.', job.name);
   }, [jobs, addLog]);
 
   const handleToggleJob = useCallback((id: string) => {
@@ -109,13 +77,9 @@ function App() {
   }, []);
 
   const handleSaveSMB = useCallback((config: SMBConfig) => {
-    setSmbConfig(config);
-    addLog('info', `Настройки SMB обновлены: //${config.server}/${config.share}`);
+    setSmbConfig({ ...config, connected: false });
+    addLog('warning', 'Изменения SMB сохранены только в памяти страницы и не записаны в системную конфигурацию.');
   }, [addLog]);
-
-  const handleTestConnection = useCallback(() => {
-    addLog('success', `SMB подключение проверено: //${smbConfig.server}/${smbConfig.share} — доступно`);
-  }, [smbConfig, addLog]);
 
   const renderPage = () => {
     switch (currentPage) {
@@ -124,7 +88,7 @@ function App() {
       case 'jobs':
         return <JobsPage jobs={jobs} onToggleJob={handleToggleJob} onRunJob={handleRunJob} onAddJob={handleAddJob} onDeleteJob={handleDeleteJob} />;
       case 'smb':
-        return <SMBPage config={smbConfig} onSave={handleSaveSMB} onTestConnection={handleTestConnection} />;
+        return <SMBPage config={smbConfig} onSave={handleSaveSMB} />;
       case 'schedule':
         return <SchedulePage jobs={jobs} onUpdateSchedule={handleUpdateSchedule} />;
       case 'logs':
@@ -142,15 +106,9 @@ function App() {
     <div className="flex min-h-screen bg-slate-50">
       <Sidebar currentPage={currentPage} onPageChange={setCurrentPage} />
       <main className="flex-1 p-6 overflow-auto">
-        {/* Running jobs notification */}
-        {runningJobs.size > 0 && (
-          <div className="mb-4 bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-center gap-3">
-            <i className="fa-solid fa-spinner fa-spin text-blue-600"></i>
-            <span className="text-sm text-blue-700">
-              Выполняется резервное копирование: {runningJobs.size} {runningJobs.size === 1 ? 'задание' : 'заданий'}
-            </span>
-          </div>
-        )}
+        <div className="mb-5 bg-amber-50 border border-amber-300 rounded-lg p-4 text-sm text-amber-900">
+          <strong>Демонстрационный интерфейс.</strong> Он не связан с системными скриптами: состояние SMB не проверяется, настройки не записываются в систему, а запуск из интерфейса не выполняет копирование. Для настройки используйте <code>sudo /usr/share/redos-backup-manager/scripts/setup.sh</code>; для реального запуска заданий — <code>sudo /usr/share/redos-backup-manager/scripts/backup-all.sh</code>.
+        </div>
         {renderPage()}
       </main>
     </div>

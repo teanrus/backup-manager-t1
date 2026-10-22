@@ -69,8 +69,7 @@ check_lock() {
 check_smb_mount() {
     if ! mountpoint -q "$MOUNT_POINT" 2>/dev/null; then
         log "INFO" "SMB ресурс не смонтирован. Попытка монтирования..."
-        /usr/share/redos-backup-manager/scripts/mount-smb.sh
-        if [ $? -ne 0 ]; then
+        if ! /usr/share/redos-backup-manager/scripts/mount-smb.sh; then
             log "ERROR" "Не удалось смонтировать SMB ресурс: //$SMB_SERVER/$SMB_SHARE"
             return 1
         fi
@@ -156,7 +155,10 @@ fi
 
 # Формирование пути назначения
 DEST_DIR="$MOUNT_POINT/$(basename "$SOURCE_DIR")"
-mkdir -p "$DEST_DIR" 2>/dev/null || true
+if ! mkdir -p "$DEST_DIR"; then
+    log "ERROR" "Не удалось создать каталог назначения: $DEST_DIR"
+    exit 1
+fi
 
 # Построение опций rsync
 RSYNC_OPTS=$(build_rsync_opts)

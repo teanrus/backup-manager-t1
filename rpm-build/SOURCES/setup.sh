@@ -65,6 +65,9 @@ echo ""
 
 # Запись конфигурации
 echo "Запись конфигурации..."
+printf -v SMB_USERNAME_ESCAPED '%q' "$SMB_USERNAME"
+printf -v SMB_PASSWORD_ESCAPED '%q' "$SMB_PASSWORD"
+printf -v SMB_DOMAIN_ESCAPED '%q' "$SMB_DOMAIN"
 cat > "$CONFIG_FILE" << EOF
 # РЕД ОС - Резервное копирование
 # Конфигурация сгенерирована: $(date '+%Y-%m-%d %H:%M:%S')
@@ -72,9 +75,9 @@ cat > "$CONFIG_FILE" << EOF
 # SMB подключение
 SMB_SERVER="$SMB_SERVER"
 SMB_SHARE="$SMB_SHARE"
-SMB_USERNAME="$SMB_USERNAME"
-SMB_PASSWORD="$SMB_PASSWORD"
-SMB_DOMAIN="$SMB_DOMAIN"
+SMB_USERNAME=$SMB_USERNAME_ESCAPED
+SMB_PASSWORD=$SMB_PASSWORD_ESCAPED
+SMB_DOMAIN=$SMB_DOMAIN_ESCAPED
 MOUNT_POINT="$MOUNT_POINT"
 
 # Параметры rsync
@@ -98,6 +101,15 @@ EOF
 
 chmod 600 "$CONFIG_FILE"
 echo "✓ Конфигурация сохранена: $CONFIG_FILE"
+echo ""
+
+# Создание файла учётных данных, используемого также записью в /etc/fstab
+CREDENTIALS_FILE="/etc/redos-backup-manager/smb-credentials"
+umask 077
+printf 'username=%s\npassword=%s\ndomain=%s\n' \
+    "$SMB_USERNAME" "$SMB_PASSWORD" "$SMB_DOMAIN" > "$CREDENTIALS_FILE"
+chmod 600 "$CREDENTIALS_FILE"
+echo "✓ Учётные данные SMB сохранены: $CREDENTIALS_FILE"
 echo ""
 
 # Создание точки монтирования

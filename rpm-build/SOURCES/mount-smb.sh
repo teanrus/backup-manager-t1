@@ -34,6 +34,7 @@ mkdir -p "$MOUNT_POINT"
 
 # Создание файла учётных данных
 CREDENTIALS_FILE="/etc/redos-backup-manager/smb-credentials"
+umask 077
 cat > "$CREDENTIALS_FILE" << EOF
 username=$SMB_USERNAME
 password=$SMB_PASSWORD

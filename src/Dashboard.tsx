@@ -27,9 +27,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ jobs, logs, smbConfig, onR
           <h2 className="text-2xl font-bold text-slate-800">Обзор</h2>
           <p className="text-slate-500 text-sm mt-1">Состояние системы резервного копирования</p>
         </div>
-        <div className="flex items-center gap-2 px-3 py-1.5 bg-green-50 border border-green-200 rounded-full">
-          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-          <span className="text-xs font-medium text-green-700">Система активна</span>
+        <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-50 border border-amber-200 rounded-full">
+          <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
+          <span className="text-xs font-medium text-amber-700">Демо-режим</span>
         </div>
       </div>
 
@@ -91,9 +91,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ jobs, logs, smbConfig, onR
           </h3>
           <div className="space-y-3">
             <div className="flex items-center gap-2">
-              <div className={`w-2.5 h-2.5 rounded-full ${smbConfig.connected ? 'bg-green-500' : 'bg-red-500'}`}></div>
-              <span className={`text-sm font-medium ${smbConfig.connected ? 'text-green-700' : 'text-red-700'}`}>
-                {smbConfig.connected ? 'Подключено' : 'Отключено'}
+              <div className={`w-2.5 h-2.5 rounded-full ${smbConfig.connected ? 'bg-green-500' : 'bg-amber-500'}`}></div>
+              <span className={`text-sm font-medium ${smbConfig.connected ? 'text-green-700' : 'text-amber-700'}`}>
+                {smbConfig.connected ? 'Подключено' : 'Не проверено'}
               </span>
             </div>
             <div className="bg-slate-50 rounded-lg p-3 space-y-1.5">
@@ -175,6 +175,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ jobs, logs, smbConfig, onR
               </div>
             </div>
           ))}
+          {logs.length === 0 && (
+            <p className="text-sm text-slate-500">Нет записей. Веб-интерфейс не получает журналы системных заданий.</p>
+          )}
         </div>
       </div>
     </div>
