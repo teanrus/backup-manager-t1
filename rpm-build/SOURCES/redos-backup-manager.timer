@@ -1,5 +1,5 @@
 [Unit]
-Description=РЕД ОС - Таймер резервного копирования
+Description=Таймер резервного копирования
 Documentation=https://redos.local
 
 [Timer]

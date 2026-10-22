@@ -1,5 +1,5 @@
 [Unit]
-Description=РЕД ОС - Резервное копирование каталогов пользователя
+Description=Резервное копирование каталогов пользователя
 Documentation=https://redos.local
 After=network-online.target remote-fs.target
 Wants=network-online.target
