@@ -1,8 +1,6 @@
 <div align="center">
 
-# 🛡️ Резервное копирование
-
-### Система резервного копирования каталогов пользователя на удалённый SMB сервер
+# 🛡️ Система резервного копирования каталогов пользователя на удалённый SMB сервер
 
 **rsync • SMB/CIFS • systemd • cron • веб-интерфейс**
 
@@ -136,42 +134,6 @@ sudo /usr/share/redos-backup-manager/scripts/setup.sh
 | `cronie` | Планировщик задач |
 | `systemd` | Система инициализации и таймеры |
 | `nmap` | Диагностика сети |
-
-### Структура файлов
-
-```
-/usr/share/redos-backup-manager/
-├── web/                         # Веб-интерфейс
-├── scripts/
-│   ├── backup.sh               # Копирование одного каталога
-│   ├── backup-all.sh           # Копирование всех каталогов
-│   ├── mount-smb.sh            # Монтирование SMB
-│   ├── setup.sh                # Первоначальная настройка
-│   └── uninstall.sh            # Полное удаление
-└── icons/
-    └── redos-backup-manager.png
-
-/etc/redos-backup-manager/
-├── backup.conf                 # Конфигурация
-└── smb-credentials             # Учётные данные (chmod 600)
-
-/etc/nginx/conf.d/
-└── redos-backup-manager.conf   # Nginx (порт 8080)
-
-/etc/cron.d/
-└── redos-backup-manager        # Cron задание
-
-/usr/lib/systemd/system/
-├── redos-backup-manager.service
-└── redos-backup-manager.timer  # Ежедневно в 03:00
-
-/usr/share/applications/
-└── redos-backup-manager.desktop
-
-/var/log/redos-backup/
-├── backup.log                  # Журнал операций
-└── rsync.log                   # Журнал rsync
-```
 
 ---
 
@@ -410,49 +372,8 @@ find /mnt/backup -type f -mtime -1 | head -20
 
 ---
 
-## 🗺️ Roadmap
-
-- [ ] Поддержка нескольких SMB серверов
-- [ ] Шифрование резервных копий (gpg)
-- [ ] Веб-интерфейс для восстановления файлов
-- [ ] Интеграция с Telegram/Matrix для уведомлений
-- [ ] Поддержка S3-совместимых хранилищ
-- [ ] Мобильное приложение для мониторинга
-- [ ] REST API для интеграции
-- [ ] Поддержка snapshot'ов (btrfs/zfs)
-
----
-
-## 📝 Лицензия
-
-MIT License — см. файл [LICENSE](LICENSE) для подробностей.
-
----
-
-## 🤝 Вклад
-
-Приветствуется! Если у вас есть идеи или предложения:
-
-1. Форкните репозиторий
-2. Создайте ветку для фичи (`git checkout -b feature/AmazingFeature`)
-3. Закоммитьте изменения (`git commit -m 'Add AmazingFeature'`)
-4. Запушьте в ветку (`git push origin feature/AmazingFeature`)
-5. Откройте Pull Request
-
----
-
-## 📞 Поддержка
-
-- **Документация:** `rpm-build/README.md`
-- **Журналы:** `/var/log/redos-backup/`
-- **Конфигурация:** `/etc/redos-backup-manager/backup.conf`
-
----
-
 <div align="center">
 
 **Сделано с ❤️ для РЕД ОС**
-
-[⬆ Наверх](#-ред-ос--резервное-копирование)
 
 </div>
