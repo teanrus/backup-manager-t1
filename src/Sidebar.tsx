@@ -25,7 +25,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentPage, onPageChange }) =
             <i className="fa-solid fa-shield-halved text-lg"></i>
           </div>
           <div>
-            <h1 className="font-bold text-sm">РЕД ОС</h1>
+            <h1 className="font-bold text-sm">Backup Manager</h1>
             <p className="text-xs text-slate-400">Резервное копирование</p>
           </div>
         </div>
@@ -55,8 +55,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentPage, onPageChange }) =
             <i className="fa-solid fa-user text-xs"></i>
           </div>
           <div>
-            <p className="text-xs font-medium">user</p>
-            <p className="text-xs text-slate-400">РЕД ОС 7.3</p>
+            <p className="text-xs font-medium"></p>
+            <p className="text-xs text-slate-400"></p>
           </div>
         </div>
       </div>
