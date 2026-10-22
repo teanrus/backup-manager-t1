@@ -1,0 +1,13 @@
+#!/bin/sh
+set -e
+
+if [ -d /run/systemd/system ]; then
+    systemctl daemon-reload || true
+fi
+
+if [ "$1" = purge ]; then
+    rm -f /etc/backup-manager/api-token /etc/backup-manager/htpasswd
+    rmdir /etc/backup-manager 2>/dev/null || true
+fi
+
+exit 0

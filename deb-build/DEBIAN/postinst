@@ -1,0 +1,15 @@
+#!/bin/sh
+set -e
+
+if [ -d /run/systemd/system ]; then
+    systemctl daemon-reload || true
+fi
+
+if [ "$1" = configure ] && [ -f /etc/backup-manager/api-token ] && [ -d /run/systemd/system ]; then
+    deb-systemd-invoke restart backup-manager-api.service >/dev/null || true
+    if [ -f /etc/backup-manager/htpasswd ] && nginx -t >/dev/null 2>&1; then
+        deb-systemd-invoke reload nginx.service >/dev/null || true
+    fi
+fi
+
+exit 0

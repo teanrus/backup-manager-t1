@@ -1,0 +1,10 @@
+Package: backup-manager
+Version: 1.0.0
+Section: admin
+Priority: optional
+Architecture: all
+Maintainer: Backup Manager contributors <backup-manager@localhost>
+Depends: nginx, nodejs (>= 18), rsync, cifs-utils, smbclient, openssl, systemd
+Description: Local web application for managing SMB/CIFS backups
+ Backup Manager provides a local web interface and API for configuring,
+ scheduling, and monitoring directory backups to SMB/CIFS shares on Linux.

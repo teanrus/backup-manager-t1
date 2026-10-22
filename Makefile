@@ -4,7 +4,7 @@ PKG_NAME = redos-backup-manager
 VERSION = 1.0.0
 RELEASE = 1
 
-.PHONY: all build install rpm clean setup help
+.PHONY: all build install rpm deb deb-build clean setup help
 
 all: build
 
@@ -59,6 +59,10 @@ rpm: build
 	@echo "✓ RPM пакет собран:"
 	@ls -lh ~/rpmbuild/RPMS/noarch/$(PKG_NAME)*.rpm 2>/dev/null || ls -lh ~/rpmbuild/RPMS/noarch/
 
+# Сборка Debian пакета
+deb deb-build:
+	bash ./deb-build/build-deb.sh
+
 # Первоначальная настройка
 setup:
 	sudo /usr/share/$(PKG_NAME)/scripts/setup.sh
@@ -80,6 +84,8 @@ help:
 	@echo "  make build    - Сборка веб-приложения"
 	@echo "  make install  - Локальная установка (без RPM)"
 	@echo "  make rpm      - Сборка RPM пакета"
+	@echo "  make deb      - Сборка Debian пакета"
+	@echo "  make deb-build - Сборка Debian пакета"
 	@echo "  make setup    - Первоначальная настройка"
 	@echo "  make clean    - Очистка временных файлов"
 	@echo "  make distclean - Полная очистка"

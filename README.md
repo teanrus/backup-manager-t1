@@ -66,9 +66,31 @@ npm test
 npm run build
 ```
 
-## Установка Linux-сервиса
+## Сборка пакетов Linux
 
-Сборка RPM и сопутствующие инструкции находятся в [`rpm-build/`](./rpm-build/). Production-вариант включает frontend, Node.js API и Nginx reverse proxy.
+Для RPM-сборки используйте каталог [`rpm-build/`](./rpm-build/). Debian-пакет для Debian/Ubuntu собирается на целевой Linux-системе, где установлены Node.js 18+, npm и `dpkg-deb`:
+
+```bash
+bash ./deb-build/build-deb.sh
+# или
+make deb
+```
+
+Готовый пакет появится в `dist/packages/backup-manager_<версия>_all.deb`. Он включает frontend, backend, systemd unit, конфигурацию Nginx и сценарий первоначальной настройки.
+
+Установите пакет и выполните настройку от root:
+
+```bash
+PACKAGE="$(find dist/packages -maxdepth 1 -name 'backup-manager_*_all.deb' -print -quit)"
+sudo apt install "./$PACKAGE"
+sudo /usr/share/backup-manager/scripts/setup.sh
+```
+
+Сценарий настройки создаёт пароль приложения и показывает его один раз. Затем откройте `http://localhost:8080` и войдите как `backup`. Пакет не запускает сервисы до выполнения первоначальной настройки. При удалении пакета пользовательские данные в `/var/lib/backup-manager` сохраняются; при полном очищении пакета (`apt purge`) удаляются файлы авторизации.
+
+## Установка RPM/Linux-сервиса
+
+Для RPM-сборки и установки используйте инструкции в [`rpm-build/`](./rpm-build/). Production-вариант включает frontend, Node.js API и Nginx reverse proxy.
 
 После установки запустите установочный `setup.sh` от root. Скрипт создаёт пароль приложения и выводит его один раз. Для входа в веб-интерфейс используйте имя `backup` и выведенный пароль. При локальном использовании откройте `http://localhost:8080`.
 
@@ -87,4 +109,5 @@ npm run build
 - [`src/`](./src/) — React-интерфейс и клиент API.
 - [`server/index.js`](./server/index.js) — backend, локальное хранилище, расписание и выполнение заданий.
 - [`server/index.test.js`](./server/index.test.js) — тесты API.
-- [`rpm-build/`](./rpm-build/) — Linux RPM-сборка и интеграция с systemd/Nginx.
+- [`rpm-build/`](./rpm-build/) — RPM-сборка и интеграция с systemd/Nginx.
+- [`deb-build/`](./deb-build/) — Debian-пакет, сценарии установки и конфигурация для Debian/Ubuntu.
