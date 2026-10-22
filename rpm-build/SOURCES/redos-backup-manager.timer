@@ -1,6 +1,6 @@
 [Unit]
 Description=Таймер резервного копирования
-Documentation=https://redos.local
+Documentation=https://github.com/teanrus/backup-manager-t1
 
 [Timer]
 # Запуск ежедневно в 03:00

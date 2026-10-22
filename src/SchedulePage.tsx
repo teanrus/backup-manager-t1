@@ -1,5 +1,5 @@
 import React from 'react';
-import { BackupJob } from './types';
+import { BackupJob, ScheduleConfig } from './types';
 
 interface SchedulePageProps {
   jobs: BackupJob[];
@@ -92,7 +92,7 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ jobs, onUpdateSchedu
                   <label className="block text-xs text-slate-500 mb-1">Тип расписания</label>
                   <select
                     value={job.schedule.type}
-                    onChange={(e) => onUpdateSchedule(job.id, { ...job.schedule, type: e.target.value as any })}
+                    onChange={(e) => onUpdateSchedule(job.id, { ...job.schedule, type: e.target.value as ScheduleConfig['type'] })}
                     className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
                   >
                     <option value="manual">Вручную</option>
@@ -132,19 +132,19 @@ export const SchedulePage: React.FC<SchedulePageProps> = ({ jobs, onUpdateSchedu
         </div>
       </div>
 
-      {/* Cron info */}
+      {/* Active schedules */}
       <div className="bg-slate-800 rounded-xl p-5 text-white">
         <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
           <i className="fa-solid fa-clock text-amber-400"></i>
-          Генерируемые cron-задачи
+Расписание, выполняемое backend
         </h4>
         <div className="bg-slate-900 rounded-lg p-3 space-y-1">
           {enabledJobs.filter(j => j.schedule.type !== 'manual').map(job => (
             <code key={job.id} className="text-xs text-green-300 font-mono block">
-              {job.schedule.type === 'hourly' ? '0 * * * *' :
-               job.schedule.type === 'daily' ? `${job.schedule.time?.split(':')[1]} ${job.schedule.time?.split(':')[0]} * * *` :
-               `${job.schedule.time?.split(':')[1]} ${job.schedule.time?.split(':')[0]} * * ${job.schedule.dayOfWeek}`}
-              <span className="text-slate-400"> /usr/local/bin/backup.sh "{job.sourcePath}"</span>
+              {job.schedule.type === 'hourly' ? 'Каждый час' :
+               job.schedule.type === 'daily' ? `Ежедневно в ${job.schedule.time}` :
+               `Еженедельно в ${job.schedule.time}, день ${job.schedule.dayOfWeek}`}
+              <span className="text-slate-400"> · {job.name}</span>
             </code>
           ))}
         </div>

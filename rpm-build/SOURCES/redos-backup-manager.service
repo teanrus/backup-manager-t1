@@ -1,6 +1,6 @@
 [Unit]
 Description=Резервное копирование каталогов пользователя
-Documentation=https://redos.local
+Documentation=https://github.com/teanrus/backup-manager-t1
 After=network-online.target remote-fs.target
 Wants=network-online.target
 

@@ -1,7 +1,6 @@
 #!/bin/bash
 #
-# РЕД ОС - Система резервного копирования
-# Скрипт выполнения резервного копирования каталога на SMB сервер
+# Backup Manager - резервное копирование каталога на SMB сервер
 #
 # Использование:
 #   backup.sh [КАТАЛОГ_ИСТОЧНИК] [ИМЯ_ЗАДАНИЯ]
@@ -121,7 +120,7 @@ send_notification() {
     local message="$2"
     
     if [ -n "${NOTIFY_EMAIL:-}" ] && command -v mail &>/dev/null; then
-        echo "$message" | mail -s "[РЕД ОС Backup] $status: $JOB_NAME" "$NOTIFY_EMAIL" 2>/dev/null || true
+        echo "$message" | mail -s "[Backup Manager] $status: $JOB_NAME" "$NOTIFY_EMAIL" 2>/dev/null || true
     fi
 }
 

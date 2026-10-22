@@ -1,7 +1,6 @@
 #!/bin/bash
 #
-# РЕД ОС - Система резервного копирования
-# Скрипт монтирования SMB/CIFS ресурса
+# Backup Manager - монтирование SMB/CIFS ресурса
 #
 
 set -euo pipefail

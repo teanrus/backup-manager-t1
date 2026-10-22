@@ -1,11 +1,14 @@
 {
-  "name": "sandbox-workspace",
+  "name": "backup-manager",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:backend": "node server/index.js",
+    "start:backend": "node server/index.js",
     "build": "vite build",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "node --test"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.1.0",

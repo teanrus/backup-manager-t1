@@ -1,7 +1,6 @@
 #!/bin/bash
 #
-# РЕД ОС - Система резервного копирования
-# Скрипт сборки RPM пакета
+# Backup Manager RPM build script
 #
 # Использование:
 #   ./build-rpm.sh
@@ -90,11 +89,15 @@ cp "$SCRIPT_DIR/SOURCES/redos-backup-manager.cron" ~/rpmbuild/SOURCES/
 cp "$SCRIPT_DIR/SOURCES/redos-backup-manager.service" ~/rpmbuild/SOURCES/
 cp "$SCRIPT_DIR/SOURCES/redos-backup-manager.timer" ~/rpmbuild/SOURCES/
 cp "$SCRIPT_DIR/SOURCES/redos-backup-manager.desktop" ~/rpmbuild/SOURCES/
+cp "$SCRIPT_DIR/SOURCES/backup-manager-api.service" ~/rpmbuild/SOURCES/
 
 # Копирование собранного веб-приложения
 rm -rf ~/rpmbuild/SOURCES/dist
 mkdir -p ~/rpmbuild/SOURCES/dist
 cp -r "$PROJECT_DIR/dist/"* ~/rpmbuild/SOURCES/dist/
+rm -rf ~/rpmbuild/SOURCES/server
+mkdir -p ~/rpmbuild/SOURCES/server
+cp "$PROJECT_DIR/server/index.js" ~/rpmbuild/SOURCES/server/
 
 # Копирование иконки
 if [ -f "$PROJECT_DIR/public/icon.png" ]; then
@@ -118,12 +121,17 @@ cd ~/rpmbuild
 
 # Проверка что все файлы на месте
 MISSING=0
-for f in backup.sh backup-all.sh mount-smb.sh setup.sh backup.conf redos-backup-manager.conf redos-backup-manager.cron redos-backup-manager.service redos-backup-manager.timer redos-backup-manager.desktop redos-backup-manager.png; do
+for f in backup.sh backup-all.sh mount-smb.sh setup.sh backup.conf redos-backup-manager.conf redos-backup-manager.cron redos-backup-manager.service redos-backup-manager.timer redos-backup-manager.desktop backup-manager-api.service redos-backup-manager.png; do
     if [ ! -f "SOURCES/$f" ]; then
         echo "  ⚠ Отсутствует: SOURCES/$f"
         MISSING=$((MISSING + 1))
     fi
 done
+
+if [ ! -f "SOURCES/server/index.js" ]; then
+    echo "  ⚠ Отсутствует: SOURCES/server/index.js"
+    MISSING=$((MISSING + 1))
+fi
 
 if [ ! -d "SOURCES/dist" ] || [ -z "$(ls -A SOURCES/dist 2>/dev/null)" ]; then
     echo "  ⚠ Отсутствует: SOURCES/dist/"

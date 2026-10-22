@@ -1,21 +1,25 @@
 import React from 'react';
 import { BackupJob, LogEntry, SMBConfig } from './types';
+import { formatTimestamp } from './api';
 
 interface DashboardProps {
   jobs: BackupJob[];
   logs: LogEntry[];
   smbConfig: SMBConfig;
   onRunJob: (id: string) => void;
+  canRunBackups: boolean;
 }
 
-export const Dashboard: React.FC<DashboardProps> = ({ jobs, logs, smbConfig, onRunJob }) => {
+export const Dashboard: React.FC<DashboardProps> = ({ jobs, logs, smbConfig, onRunJob, canRunBackups }) => {
   const totalSize = jobs.reduce((acc, job) => {
     const num = parseFloat(job.size);
+    if (!Number.isFinite(num)) return acc;
     if (job.size.includes('ГБ')) return acc + num * 1024;
     return acc + num;
   }, 0);
 
   const totalFiles = jobs.reduce((acc, job) => acc + job.filesCount, 0);
+  const hasBackup = jobs.some(job => job.lastStatus === 'success');
   const activeJobs = jobs.filter((j) => j.enabled).length;
   const successJobs = jobs.filter((j) => j.lastStatus === 'success').length;
   const errorJobs = jobs.filter((j) => j.lastStatus === 'error').length;
@@ -27,9 +31,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ jobs, logs, smbConfig, onR
           <h2 className="text-2xl font-bold text-slate-800">Обзор</h2>
           <p className="text-slate-500 text-sm mt-1">Состояние системы резервного копирования</p>
         </div>
-        <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-50 border border-amber-200 rounded-full">
-          <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
-          <span className="text-xs font-medium text-amber-700">Демо-режим</span>
+        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${canRunBackups ? 'bg-green-50 border border-green-200' : 'bg-amber-50 border border-amber-200'}`}>
+          <div className={`w-2 h-2 rounded-full ${canRunBackups ? 'bg-green-500' : 'bg-amber-500'}`}></div>
+          <span className={`text-xs font-medium ${canRunBackups ? 'text-green-700' : 'text-amber-700'}`}>{canRunBackups ? 'Backend подключён' : 'Только просмотр'}</span>
         </div>
       </div>
 
@@ -50,7 +54,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ jobs, logs, smbConfig, onR
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs text-slate-500 uppercase tracking-wide">Объём данных</p>
-              <p className="text-2xl font-bold text-slate-800 mt-1">{(totalSize / 1024).toFixed(1)} ГБ</p>
+              <p className="text-2xl font-bold text-slate-800 mt-1">{hasBackup ? `${(totalSize / 1024).toFixed(1)} ГБ` : '—'}</p>
             </div>
             <div className="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center">
               <i className="fa-solid fa-database text-purple-600"></i>
@@ -61,7 +65,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ jobs, logs, smbConfig, onR
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs text-slate-500 uppercase tracking-wide">Всего файлов</p>
-              <p className="text-2xl font-bold text-slate-800 mt-1">{totalFiles.toLocaleString()}</p>
+              <p className="text-2xl font-bold text-slate-800 mt-1">{hasBackup ? totalFiles.toLocaleString() : '—'}</p>
             </div>
             <div className="w-12 h-12 bg-amber-50 rounded-xl flex items-center justify-center">
               <i className="fa-solid fa-file text-amber-600"></i>
@@ -93,7 +97,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ jobs, logs, smbConfig, onR
             <div className="flex items-center gap-2">
               <div className={`w-2.5 h-2.5 rounded-full ${smbConfig.connected ? 'bg-green-500' : 'bg-amber-500'}`}></div>
               <span className={`text-sm font-medium ${smbConfig.connected ? 'text-green-700' : 'text-amber-700'}`}>
-                {smbConfig.connected ? 'Подключено' : 'Не проверено'}
+                {smbConfig.connected ? 'Последняя проверка успешна' : 'Не проверено'}
               </span>
             </div>
             <div className="bg-slate-50 rounded-lg p-3 space-y-1.5">
@@ -130,7 +134,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ jobs, logs, smbConfig, onR
                   <span className="text-xs text-slate-500">{job.size}</span>
                   <button
                     onClick={() => onRunJob(job.id)}
-                    className="px-3 py-1.5 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700 transition-colors"
+                    disabled={!canRunBackups || job.lastStatus === 'running'}
+                    title={!canRunBackups ? 'Запуск резервного копирования поддерживается в Linux' : undefined}
+                    className="px-3 py-1.5 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     <i className="fa-solid fa-play mr-1"></i> Запустить
                   </button>
@@ -171,12 +177,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ jobs, logs, smbConfig, onR
               }`}></span>
               <div className="flex-1 min-w-0">
                 <p className="text-sm text-slate-700 truncate">{log.message}</p>
-                <p className="text-xs text-slate-400 mt-0.5">{log.timestamp} {log.jobName && `• ${log.jobName}`}</p>
+                <p className="text-xs text-slate-400 mt-0.5">{formatTimestamp(log.timestamp)} {log.jobName && `• ${log.jobName}`}</p>
               </div>
             </div>
           ))}
           {logs.length === 0 && (
-            <p className="text-sm text-slate-500">Нет записей. Веб-интерфейс не получает журналы системных заданий.</p>
+            <p className="text-sm text-slate-500">Журнал пока пуст.</p>
           )}
         </div>
       </div>

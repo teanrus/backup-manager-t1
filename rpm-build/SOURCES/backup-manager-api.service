@@ -1,0 +1,20 @@
+[Unit]
+Description=Backup Manager local API
+After=network.target
+ConditionPathExists=/etc/backup-manager/api-token
+
+[Service]
+Type=simple
+WorkingDirectory=/usr/share/redos-backup-manager/server
+Environment=BACKUP_MANAGER_HOST=127.0.0.1
+Environment=BACKUP_MANAGER_PORT=3001
+Environment=BACKUP_MANAGER_DATA_DIR=/var/lib/backup-manager
+Environment=BACKUP_MANAGER_API_TOKEN_FILE=/etc/backup-manager/api-token
+ExecStart=/usr/bin/node /usr/share/redos-backup-manager/server/index.js
+Restart=on-failure
+RestartSec=3
+User=root
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

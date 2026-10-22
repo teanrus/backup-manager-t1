@@ -3,6 +3,7 @@ export interface SMBConfig {
   share: string;
   username: string;
   password: string;
+  passwordConfigured?: boolean;
   domain: string;
   mountPoint: string;
   connected: boolean;

@@ -1,6 +1,5 @@
-import React, { useState, useCallback } from 'react';
-import { Page, BackupJob, LogEntry, SMBConfig } from './types';
-import { initialSMBConfig, initialJobs, initialLogs } from './data';
+import React, { useState, useCallback, useEffect } from 'react';
+import { Page, BackupJob, SMBConfig } from './types';
 import { Sidebar } from './Sidebar';
 import { Dashboard } from './Dashboard';
 import { JobsPage } from './JobsPage';
@@ -9,106 +8,117 @@ import { SchedulePage } from './SchedulePage';
 import { LogsPage } from './LogsPage';
 import { SettingsPage } from './SettingsPage';
 import { AboutPage } from './AboutPage';
+import { api, AppState, BackupSettings } from './api';
+
+const emptyState: AppState = {
+  jobs: [],
+  logs: [],
+  smbConfig: { server: '', share: '', username: '', password: '', domain: 'WORKGROUP', mountPoint: '/mnt/backup', connected: false },
+  settings: {
+    compression: true, deleteExtra: false, verbose: false, bandwidthLimit: 0, retries: 3,
+    notifyEmail: '', notifyOnError: true, notifyOnSuccess: false, logRetention: 30, parallelJobs: 1,
+  },
+  backend: { platform: 'unknown', canRunBackups: false },
+};
 
 function App() {
   const [currentPage, setCurrentPage] = useState<Page>('dashboard');
-  const [smbConfig, setSmbConfig] = useState<SMBConfig>(initialSMBConfig);
-  const [jobs, setJobs] = useState<BackupJob[]>(initialJobs);
-  const [logs, setLogs] = useState<LogEntry[]>(initialLogs);
+  const [appState, setAppState] = useState<AppState>(emptyState);
+  const [loading, setLoading] = useState(true);
+  const [connectionError, setConnectionError] = useState('');
+  const [operationError, setOperationError] = useState('');
 
-  const addLog = useCallback((level: LogEntry['level'], message: string, jobName?: string) => {
-    const newLog: LogEntry = {
-      id: Date.now().toString(),
-      timestamp: new Date().toLocaleString('ru-RU', { 
-        year: 'numeric', month: '2-digit', day: '2-digit',
-        hour: '2-digit', minute: '2-digit', second: '2-digit'
-      }).replace(',', ''),
-      level,
-      message,
-      jobName,
-    };
-    setLogs(prev => [newLog, ...prev]);
+  const refresh = useCallback(async () => {
+    try {
+      setAppState(await api.getState());
+      setConnectionError('');
+    } catch (refreshError) {
+      setConnectionError(refreshError instanceof Error ? refreshError.message : 'Не удалось связаться с backend.');
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    void refresh();
+    const timer = window.setInterval(() => void refresh(), 4000);
+    return () => window.clearInterval(timer);
+  }, [refresh]);
+
+  const perform = useCallback(async (operation: () => Promise<unknown>): Promise<boolean> => {
+    try {
+      await operation();
+      await refresh();
+      setOperationError('');
+      return true;
+    } catch (operationError) {
+      setOperationError(operationError instanceof Error ? operationError.message : 'Операция не выполнена.');
+      return false;
+    }
+  }, [refresh]);
 
   const handleRunJob = useCallback((id: string) => {
-    const job = jobs.find(j => j.id === id);
-    if (!job) return;
-
-    addLog('error', 'Веб-интерфейс не подключён к системному сервису и не может запускать резервное копирование. Используйте backup-all.sh.', job.name);
-  }, [jobs, addLog]);
+    void perform(() => api.runJob(id));
+  }, [perform]);
 
   const handleToggleJob = useCallback((id: string) => {
-    setJobs(prev => prev.map(j => {
-      if (j.id === id) {
-        const newEnabled = !j.enabled;
-        addLog('info', `Задание "${j.name}" ${newEnabled ? 'включено' : 'выключено'}`);
-        return { ...j, enabled: newEnabled };
-      }
-      return j;
-    }));
-  }, [addLog]);
+    const job = appState.jobs.find(item => item.id === id);
+    if (job) void perform(() => api.updateJob(id, { enabled: !job.enabled }));
+  }, [appState.jobs, perform]);
 
-  const handleAddJob = useCallback((job: Omit<BackupJob, 'id' | 'lastRun' | 'lastStatus'>) => {
-    const newJob: BackupJob = {
-      ...job,
-      id: Date.now().toString(),
-      lastRun: null,
-      lastStatus: 'never',
-    };
-    setJobs(prev => [...prev, newJob]);
-    addLog('info', `Добавлено новое задание: "${job.name}" (${job.sourcePath})`);
-  }, [addLog]);
+  const handleAddJob = useCallback((job: Omit<BackupJob, 'id' | 'lastRun' | 'lastStatus' | 'size' | 'filesCount'>) => {
+    void perform(() => api.addJob(job));
+  }, [perform]);
 
   const handleDeleteJob = useCallback((id: string) => {
-    const job = jobs.find(j => j.id === id);
-    if (job) {
-      setJobs(prev => prev.filter(j => j.id !== id));
-      addLog('info', `Удалено задание: "${job.name}"`);
-    }
-  }, [jobs, addLog]);
+    void perform(() => api.deleteJob(id));
+  }, [perform]);
 
   const handleUpdateSchedule = useCallback((id: string, schedule: BackupJob['schedule']) => {
-    setJobs(prev => prev.map(j => {
-      if (j.id === id) {
-        return { ...j, schedule };
-      }
-      return j;
-    }));
-  }, []);
+    void perform(() => api.updateJob(id, { schedule }));
+  }, [perform]);
 
   const handleSaveSMB = useCallback((config: SMBConfig) => {
-    setSmbConfig({ ...config, connected: false });
-    addLog('warning', 'Изменения SMB сохранены только в памяти страницы и не записаны в системную конфигурацию.');
-  }, [addLog]);
+    return perform(() => api.saveSmb(config));
+  }, [perform]);
+
+  const handleTestSMB = useCallback(() => perform(() => api.testSmb()), [perform]);
+
+  const handleSaveSettings = useCallback((settings: BackupSettings) => {
+    return perform(() => api.saveSettings(settings));
+  }, [perform]);
 
   const renderPage = () => {
     switch (currentPage) {
       case 'dashboard':
-        return <Dashboard jobs={jobs} logs={logs} smbConfig={smbConfig} onRunJob={handleRunJob} />;
+        return <Dashboard jobs={appState.jobs} logs={appState.logs} smbConfig={appState.smbConfig} onRunJob={handleRunJob} canRunBackups={appState.backend.canRunBackups} />;
       case 'jobs':
-        return <JobsPage jobs={jobs} onToggleJob={handleToggleJob} onRunJob={handleRunJob} onAddJob={handleAddJob} onDeleteJob={handleDeleteJob} />;
+        return <JobsPage jobs={appState.jobs} onToggleJob={handleToggleJob} onRunJob={handleRunJob} onAddJob={handleAddJob} onDeleteJob={handleDeleteJob} canRunBackups={appState.backend.canRunBackups} />;
       case 'smb':
-        return <SMBPage config={smbConfig} onSave={handleSaveSMB} />;
+        return <SMBPage config={appState.smbConfig} onSave={handleSaveSMB} onTest={handleTestSMB} />;
       case 'schedule':
-        return <SchedulePage jobs={jobs} onUpdateSchedule={handleUpdateSchedule} />;
+        return <SchedulePage jobs={appState.jobs} onUpdateSchedule={handleUpdateSchedule} />;
       case 'logs':
-        return <LogsPage logs={logs} />;
+        return <LogsPage logs={appState.logs} />;
       case 'settings':
-        return <SettingsPage />;
+        return <SettingsPage settings={appState.settings} onSave={handleSaveSettings} />;
       case 'about':
         return <AboutPage />;
       default:
-        return <Dashboard jobs={jobs} logs={logs} smbConfig={smbConfig} onRunJob={handleRunJob} />;
+        return <Dashboard jobs={appState.jobs} logs={appState.logs} smbConfig={appState.smbConfig} onRunJob={handleRunJob} canRunBackups={appState.backend.canRunBackups} />;
     }
   };
+  const error = operationError || connectionError;
 
   return (
     <div className="flex min-h-screen bg-slate-50">
       <Sidebar currentPage={currentPage} onPageChange={setCurrentPage} />
       <main className="flex-1 p-6 overflow-auto">
-        <div className="mb-5 bg-amber-50 border border-amber-300 rounded-lg p-4 text-sm text-amber-900">
-          <strong>Демонстрационный интерфейс.</strong> Он не связан с системными скриптами: состояние SMB не проверяется, настройки не записываются в систему, а запуск из интерфейса не выполняет копирование. Для настройки используйте <code>sudo /usr/share/redos-backup-manager/scripts/setup.sh</code>; для реального запуска заданий — <code>sudo /usr/share/redos-backup-manager/scripts/backup-all.sh</code>.
-        </div>
+        {loading && <div className="mb-5 rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm text-blue-800">Подключаемся к локальному backend…</div>}
+        {error && <div role="alert" className="mb-5 flex items-center justify-between rounded-lg border border-red-300 bg-red-50 p-4 text-sm text-red-800">
+          <span>{error}</span>
+          <button className="font-medium underline" onClick={() => { setOperationError(''); void refresh(); }}>Повторить</button>
+        </div>}
         {renderPage()}
       </main>
     </div>

@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { BackupJob } from './types';
+import { BackupJob, ScheduleConfig } from './types';
 
 interface JobsPageProps {
   jobs: BackupJob[];
   onToggleJob: (id: string) => void;
   onRunJob: (id: string) => void;
-  onAddJob: (job: Omit<BackupJob, 'id' | 'lastRun' | 'lastStatus'>) => void;
+  onAddJob: (job: Omit<BackupJob, 'id' | 'lastRun' | 'lastStatus' | 'size' | 'filesCount'>) => void;
   onDeleteJob: (id: string) => void;
+  canRunBackups: boolean;
 }
 
 const scheduleLabels: Record<string, string> = {
@@ -17,22 +18,22 @@ const scheduleLabels: Record<string, string> = {
   custom: 'По cron',
 };
 
-export const JobsPage: React.FC<JobsPageProps> = ({ jobs, onToggleJob, onRunJob, onAddJob, onDeleteJob }) => {
+const dayNames = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'];
+
+export const JobsPage: React.FC<JobsPageProps> = ({ jobs, onToggleJob, onRunJob, onAddJob, onDeleteJob, canRunBackups }) => {
   const [showAddForm, setShowAddForm] = useState(false);
-  const [newJob, setNewJob] = useState({
+  const [newJob, setNewJob] = useState<Omit<BackupJob, 'id' | 'lastRun' | 'lastStatus' | 'size' | 'filesCount'>>({
     name: '',
     sourcePath: '',
     enabled: true,
-    schedule: { type: 'daily' as const, time: '03:00' },
-    size: '0 МБ',
-    filesCount: 0,
+    schedule: { type: 'daily', time: '03:00', dayOfWeek: 1 },
   });
 
   const handleAdd = () => {
     if (newJob.name && newJob.sourcePath) {
       onAddJob(newJob);
       setShowAddForm(false);
-      setNewJob({ name: '', sourcePath: '', enabled: true, schedule: { type: 'daily', time: '03:00' }, size: '0 МБ', filesCount: 0 });
+      setNewJob({ name: '', sourcePath: '', enabled: true, schedule: { type: 'daily', time: '03:00', dayOfWeek: 1 } });
     }
   };
 
@@ -81,7 +82,7 @@ export const JobsPage: React.FC<JobsPageProps> = ({ jobs, onToggleJob, onRunJob,
               <label className="block text-xs font-medium text-slate-600 mb-1">Расписание</label>
               <select
                 value={newJob.schedule.type}
-                onChange={(e) => setNewJob({ ...newJob, schedule: { ...newJob.schedule, type: e.target.value as any } })}
+                onChange={(e) => setNewJob({ ...newJob, schedule: { ...newJob.schedule, type: e.target.value as ScheduleConfig['type'] } })}
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
               >
                 <option value="manual">Вручную</option>
@@ -99,6 +100,18 @@ export const JobsPage: React.FC<JobsPageProps> = ({ jobs, onToggleJob, onRunJob,
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
               />
             </div>
+            {newJob.schedule.type === 'weekly' && (
+              <div>
+                <label className="block text-xs font-medium text-slate-600 mb-1">День недели</label>
+                <select
+                  value={newJob.schedule.dayOfWeek}
+                  onChange={event => setNewJob({ ...newJob, schedule: { ...newJob.schedule, dayOfWeek: Number(event.target.value) } })}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                >
+                  {dayNames.map((name, index) => <option key={index} value={index}>{name}</option>)}
+                </select>
+              </div>
+            )}
           </div>
           <div className="flex gap-2 mt-4">
             <button onClick={handleAdd} className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700">
@@ -164,7 +177,9 @@ export const JobsPage: React.FC<JobsPageProps> = ({ jobs, onToggleJob, onRunJob,
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => onRunJob(job.id)}
-                  className="px-3 py-1.5 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-1"
+                  disabled={!canRunBackups || job.lastStatus === 'running'}
+                  title={!canRunBackups ? 'Запуск резервного копирования поддерживается в Linux' : undefined}
+                  className="px-3 py-1.5 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-1 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <i className="fa-solid fa-play"></i> Запустить
                 </button>
@@ -191,20 +206,7 @@ export const JobsPage: React.FC<JobsPageProps> = ({ jobs, onToggleJob, onRunJob,
         ))}
       </div>
 
-      {/* rsync command info */}
-      <div className="bg-slate-800 rounded-xl p-5 text-white">
-        <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
-          <i className="fa-solid fa-terminal text-green-400"></i>
-          Пример команды rsync
-        </h4>
-        <code className="text-xs text-green-300 font-mono block bg-slate-900 rounded-lg p-3 overflow-x-auto">
-          rsync -avz --progress --delete --log-file=/var/log/backup.log \<br/>
-          &nbsp;&nbsp;/home/user/Документы/ /mnt/backup/Документы/
-        </code>
-        <p className="text-xs text-slate-400 mt-2">
-          Флаги: -a (архивный), -v (подробный), -z (сжатие), --delete (удаление устаревших), --progress (прогресс)
-        </p>
-      </div>
+      <p className="text-xs text-slate-500">Каждое задание копируется в отдельный каталог резервного SMB-ресурса.</p>
     </div>
   );
 };

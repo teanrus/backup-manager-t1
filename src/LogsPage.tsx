@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { LogEntry } from './types';
+import { formatTimestamp } from './api';
 
 interface LogsPageProps {
   logs: LogEntry[];
@@ -94,7 +95,7 @@ export const LogsPage: React.FC<LogsPageProps> = ({ logs }) => {
                   <div className="flex-1 min-w-0">
                     <p className="text-sm text-slate-700">{log.message}</p>
                     <div className="flex items-center gap-3 mt-1.5">
-                      <span className="text-xs text-slate-400 font-mono">{log.timestamp}</span>
+                      <span className="text-xs text-slate-400 font-mono">{formatTimestamp(log.timestamp)}</span>
                       {log.jobName && (
                         <span className="text-xs px-2 py-0.5 bg-slate-100 rounded text-slate-600">
                           {log.jobName}
@@ -115,18 +116,7 @@ export const LogsPage: React.FC<LogsPageProps> = ({ logs }) => {
         )}
       </div>
 
-      {/* Log file info */}
-      <div className="bg-slate-800 rounded-xl p-5 text-white">
-        <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
-          <i className="fa-solid fa-file-code text-blue-400"></i>
-          Файл журнала на диске
-        </h4>
-        <code className="text-xs text-green-300 font-mono block bg-slate-900 rounded-lg p-3">
-          /var/log/redos-backup/backup.log<br/>
-          <span className="text-slate-400"># Просмотр последних записей:</span><br/>
-          tail -f /var/log/redos-backup/backup.log
-        </code>
-      </div>
+      <p className="text-xs text-slate-500">Журнал сохраняется локально backend. Последние 1000 событий доступны в этом разделе.</p>
     </div>
   );
 };
