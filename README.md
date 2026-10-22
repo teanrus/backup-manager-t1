@@ -48,8 +48,17 @@
 
 ## 🖥️ Скриншоты
 
-> *Дашборд с обзором состояния системы, список заданий, журнал операций, настройки SMB*
+![scrin1](assets/34.png)
 
+![scrin2](assets/46.png)
+
+![scrin3](assets/47.png)
+
+![scrin4](assets/49.png)
+
+![scrin5](assets/52.png)
+
+![scrin6](assets/61.png)
 ---
 
 ## 📋 Требования
