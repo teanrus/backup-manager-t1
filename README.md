@@ -29,7 +29,7 @@
 - React, TypeScript и Vite — веб-интерфейс.
 - Node.js — локальный API, хранение данных, расписание и очередь заданий.
 - `rsync`, `smbclient` и CIFS mount utilities — проверка SMB и копирование на Linux.
-- systemd и Nginx — запуск и публикация локального интерфейса в Linux RPM-сборке.
+- systemd и Nginx — запуск и публикация локального интерфейса в Linux-пакетах.
 
 ## Требования и поддержка платформ
 
@@ -68,7 +68,11 @@ npm run build
 
 ## Сборка пакетов Linux
 
-Для RPM-сборки используйте каталог [`rpm-build/`](./rpm-build/). Debian-пакет для Debian/Ubuntu собирается на целевой Linux-системе, где установлены Node.js 18+, npm и `dpkg-deb`:
+Для Linux подготовлены два формата пакетов. Сборку выполняйте в соответствующей Linux-среде; до использования в рабочей системе проверьте пакет на целевом дистрибутиве.
+
+### Debian/Ubuntu (`.deb`)
+
+На Debian/Ubuntu установите Node.js 18+, npm и `dpkg-deb`, затем из корня репозитория соберите пакет:
 
 ```bash
 bash ./deb-build/build-deb.sh
@@ -76,27 +80,33 @@ bash ./deb-build/build-deb.sh
 make deb
 ```
 
-Подробная инструкция по требованиям, сборке, установке, обновлению и диагностике находится в [`deb-build/README.md`](./deb-build/README.md).
-
-Готовый пакет появится в `dist/packages/backup-manager_<версия>_all.deb`. Он включает frontend, backend, systemd unit, конфигурацию Nginx и сценарий первоначальной настройки.
-
-Установите пакет и выполните настройку от root:
+Пакет появится в `dist/packages/backup-manager_<версия>_all.deb`. Установите его и выполните первоначальную настройку:
 
 ```bash
-PACKAGE="$(find dist/packages -maxdepth 1 -name 'backup-manager_*_all.deb' -print -quit)"
-sudo apt install "./$PACKAGE"
+PACKAGE_VERSION="$(node -p "JSON.parse(require('node:fs').readFileSync('package.json', 'utf8')).version")"
+sudo apt install "./dist/packages/backup-manager_${PACKAGE_VERSION}_all.deb"
 sudo /usr/share/backup-manager/scripts/setup.sh
 ```
 
-Сценарий настройки создаёт пароль приложения и показывает его один раз. Затем откройте `http://localhost:8080` и войдите как `backup`. Пакет не запускает сервисы до выполнения первоначальной настройки. При удалении пакета пользовательские данные в `/var/lib/backup-manager` сохраняются; при полном очищении пакета (`apt purge`) удаляются файлы авторизации.
+Команды выполняются из корня репозитория. Сценарий настройки создаёт секреты и выводит пароль пользователя `backup` один раз. После этого откройте `http://localhost:8080` на компьютере, где установлен сервис. При `apt remove` локальное состояние в `/var/lib/backup-manager` сохраняется; даже `apt purge` не удаляет этот каталог автоматически. Подробности о сборке, установке, диагностике и удалении — в [`deb-build/README.md`](./deb-build/README.md).
 
-## Установка RPM/Linux-сервиса
+### RPM
 
-Для RPM-сборки и установки используйте инструкции в [`rpm-build/`](./rpm-build/). Production-вариант включает frontend, Node.js API и Nginx reverse proxy.
+Соберите RPM в Linux-среде с Node.js 18+, npm и `rpmbuild`:
 
-После установки запустите установочный `setup.sh` от root. Скрипт создаёт пароль приложения и выводит его один раз. Для входа в веб-интерфейс используйте имя `backup` и выведенный пароль. При локальном использовании откройте `http://localhost:8080`.
+```bash
+bash ./rpm-build/build-rpm.sh
+# или
+make rpm
+```
 
-Для установки и работы необходимы systemd, Nginx, Node.js 18 или новее, `rsync`, `smbclient` и CIFS mount utilities. Фактический состав зависимостей зависит от целевого Linux-дистрибутива.
+После установки RPM запустите сценарий первоначальной настройки от root. Он создаст пароль приложения и выведет его один раз. Подробные требования и инструкции по установке, обновлению, диагностике и удалению находятся в [`rpm-build/README.md`](./rpm-build/README.md).
+
+### Общие замечания
+
+В установленных вариантах Nginx и API доступны только на loopback; веб-интерфейс предназначен для локального использования. Для проверки SMB и запуска резервного копирования необходимы Linux, systemd, `rsync`, `smbclient` и CIFS mount utilities. Установленные API-сервисы запускаются от root, чтобы монтировать сетевые ресурсы.
+
+Названия RPM-пакета и некоторых RPM-путей установки пока содержат исторический префикс `redos-`; пакет называется `backup-manager` в Debian-варианте. Не смешивайте инструкции и команды между форматами — в частности, у них разные пути к сценарию настройки и разные правила очистки данных.
 
 ## Данные и безопасность
 
@@ -112,4 +122,6 @@ sudo /usr/share/backup-manager/scripts/setup.sh
 - [`server/index.js`](./server/index.js) — backend, локальное хранилище, расписание и выполнение заданий.
 - [`server/index.test.js`](./server/index.test.js) — тесты API.
 - [`rpm-build/`](./rpm-build/) — RPM-сборка и интеграция с systemd/Nginx.
-- [`deb-build/`](./deb-build/) — Debian-пакет, сценарии установки и конфигурация для Debian/Ubuntu.
+- [`rpm-build/README.md`](./rpm-build/README.md) — подробная инструкция по сборке и установке RPM.
+- [`deb-build/`](./deb-build/) — Debian-пакет и сценарии для Debian/Ubuntu.
+- [`deb-build/README.md`](./deb-build/README.md) — подробная инструкция по сборке и установке Debian-пакета.
