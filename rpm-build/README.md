@@ -1,3 +1,8 @@
+[![Package](https://img.shields.io/badge/Package-RPM-EE0000?style=for-the-badge&logo=redhat&logoColor=white)](https://rpm.org/)
+[![Platform](https://img.shields.io/badge/Platform-RPM--based_Linux-EE0000?style=for-the-badge&logo=linux&logoColor=white)](https://rpm.org/)
+[![Build](https://img.shields.io/badge/Build-RPM_Build-0078D4?style=for-the-badge)](https://rpm.org/)
+[![Format](https://img.shields.io/badge/Format-.rpm-555555?style=for-the-badge)](https://rpm.org/)
+
 # Сборка и установка RPM-пакета
 
 В этом каталоге находятся спецификация RPM-пакета, необходимые для него системные файлы и сценарий сборки. RPM устанавливает веб-интерфейс Backup Manager, Node.js API, конфигурацию Nginx и unit systemd.
