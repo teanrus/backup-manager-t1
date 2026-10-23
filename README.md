@@ -2,11 +2,13 @@
 [![Content](https://img.shields.io/badge/Content-Shell_Scripts-4EAA25?style=for-the-badge)](https://www.gnu.org/software/bash/)
 ![Purpose](https://img.shields.io/badge/Purpose-Backup_Automation-2E8B57?style=for-the-badge)
 ![Platform](https://img.shields.io/badge/Platform-Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)
-![Status](https://img.shields.io/badge/Status-Development-orange?style=for-the-badge)
+![Status](https://img.shields.io/badge/Status-Pre--release-orange?style=for-the-badge)
 
 ![banner](assets/backup-manager-banner.jpg)
 
 # Система резервного копирования каталогов пользователя на удалённый SMB сервер - Backup Manager
+
+> **Важно: Backup Manager находится на стадии пре-релиза.** Это ещё не готовый продукт: работы по его развитию и доводке продолжаются. Возможны ошибки, неполная функциональность и изменения в последующих версиях.
 
 **Backup Manager** — локальное веб-приложение для настройки и управления резервным копированием каталогов на сетевые ресурсы SMB/CIFS. Приложение объединяет веб-интерфейс, локальный API и фоновое выполнение заданий на Linux.
 
