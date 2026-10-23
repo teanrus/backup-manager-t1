@@ -1,3 +1,8 @@
+[![Package](https://img.shields.io/badge/Package-DEB-A81D33?style=for-the-badge&logo=debian&logoColor=white)](https://www.debian.org/)
+[![Platform](https://img.shields.io/badge/Platform-Debian%20%7C%20Ubuntu-E95420?style=for-the-badge&logo=ubuntu&logoColor=white)](https://ubuntu.com/)
+[![Build](https://img.shields.io/badge/Build-DPKG-A81D33?style=for-the-badge)](https://www.debian.org/doc/manuals/debian-faq/pkg-basics.en.html)
+[![Format](https://img.shields.io/badge/Format-.deb-555555?style=for-the-badge)](https://www.debian.org/)
+
 # Сборка и установка Debian-пакета
 
 В этом каталоге находятся метаданные Debian-пакета, сценарии обслуживания, systemd unit, конфигурация Nginx и сценарий сборки `.deb` для Backup Manager.
