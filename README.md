@@ -76,6 +76,8 @@ bash ./deb-build/build-deb.sh
 make deb
 ```
 
+Подробная инструкция по требованиям, сборке, установке, обновлению и диагностике находится в [`deb-build/README.md`](./deb-build/README.md).
+
 Готовый пакет появится в `dist/packages/backup-manager_<версия>_all.deb`. Он включает frontend, backend, systemd unit, конфигурацию Nginx и сценарий первоначальной настройки.
 
 Установите пакет и выполните настройку от root:
