@@ -91,17 +91,17 @@ Backend установлен как системный сервис от `root`:
 1. Получите исходный код проекта и перейдите в его корневой каталог — туда, где находятся `package.json` и `rpm-build/`.
 2. При необходимости установите зависимости разработки и выполните проверки:
 
-   ```bash
-   npm ci
-   npm run typecheck
-   npm test
-   ```
+```bash
+npm ci
+npm run typecheck
+npm test
+```
 
 3. Запустите сценарий сборки:
 
-   ```bash
-   bash ./rpm-build/build-rpm.sh
-   ```
+```bash
+bash ./rpm-build/build-rpm.sh
+```
 
 Сценарий проверяет наличие `node`, `npm` и `rpmbuild`, устанавливает npm-зависимости, собирает frontend, подготавливает дерево `~/rpmbuild/` и запускает `rpmbuild`.
 
